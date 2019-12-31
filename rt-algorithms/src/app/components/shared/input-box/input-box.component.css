@@ -1,0 +1,31 @@
+.input-box {
+    display: flex;
+    flex-flow: column;
+    width: 100%;
+    margin-left: 10%;
+    margin-right: 10%;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+.input-box-hint {
+    font-style: italic;
+    font-size: 1em;
+    color: #DCDCDC;
+}
+
+.input-box-system-input {
+    display: flex;
+    flex-flow: row;
+    align-items: flex-start;
+}
+
+.input-box-system-input input {
+    display: flex;
+    flex-flow: row;
+    flex-grow: 1;
+}
+
+.input-box-system-input button {
+    margin-left: 0.5vw;
+}

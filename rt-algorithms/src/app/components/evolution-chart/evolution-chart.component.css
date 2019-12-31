@@ -1,0 +1,48 @@
+.sched-chart-container {
+    display: flex;
+    flex-shrink: 1;
+}
+
+.sched-chart {
+    display: flex;
+    flex-direction: column;
+}
+
+.sched-chart-row {
+    display: flex;
+    flex-direction: row;
+    border-bottom: 1px solid #ced4da;
+}
+
+.sched-chart-row > .sched-chart-cell:first-child {
+    border-right: 2px solid #ced4da;
+}
+
+.sched-chart-row:nth-last-child(2) {
+    border-bottom: 2px solid #ced4da;
+}
+
+.sched-chart-row:nth-last-child(1) {
+    border-bottom: 2px solid #ced4da;
+}
+
+.sched-chart-cell {
+    width: 1.5em;
+    height: 1.5em;
+    display: inline-flex;
+    border-right: 1px solid #ced4da;
+    align-items: center;
+  justify-content: center;
+}
+
+.sched-chart-cell:last-child {
+    border-right: none;
+}
+
+.sched-chart-executed {
+    background-color: greenyellow;
+}
+
+.sched-chart-empty {
+
+}

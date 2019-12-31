@@ -1,0 +1,12 @@
+<div id="{{ boxId }}" class="result-box">
+        <h6 class="res-box-input-label">{{ label }}</h6>
+        <div class="res-box-input">
+            <input id="{{ boxId + '-input' }}" title="{{ inputTooltip }}" type="text" 
+                class="form-control" value="{{ value }}" 
+                [ngClass]="{ 
+                        'verifies-cota' : isValidForCota != null && isValidForCota,
+                        'fails-cota' : isValidForCota != null && !isValidForCota
+                }" 
+                />
+        </div>
+</div>

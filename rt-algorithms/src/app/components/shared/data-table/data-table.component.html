@@ -1,0 +1,14 @@
+<div class="data-table">
+    <table class="table table-striped border border-light rounded-sm" [ngStyle]="{ width: tableWidth }">
+        <thead>
+            <tr>
+                <th [ngStyle]="{ width: (100 / headers.length) + '%' }" scope="col" *ngFor="let header of headers">{{ header }}</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let row of rows; let i = index;">
+                <td [ngStyle]="{ width: (100 / headers.length) + '%' }" *ngFor="let value of row; let x = index;">{{ value }}</td>
+            </tr>
+        </tbody>
+    </table>
+</div>

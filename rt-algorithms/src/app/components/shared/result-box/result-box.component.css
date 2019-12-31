@@ -1,0 +1,34 @@
+.result-box {
+    margin-right: 0.3em;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 1;
+    flex-basis: content;
+}
+
+.result-box:last {
+    margin-right: 0;
+}
+
+.res-box-input-label {
+    text-align: left;
+}
+
+.res-box-input input {
+    margin-left: auto;
+    margin-right: auto;
+    width: 150px;
+}
+
+.verifies-cota {
+    -webkit-box-shadow: 0px 0px 4px #21de14;
+    -moz-box-shadow: 0px 0px 4px #21de14;
+    box-shadow: 0px 0px 4px #21de14;
+}
+  
+.fails-cota {
+    -webkit-box-shadow: 0px 0px 4px #e30909;
+    -moz-box-shadow: 0px 0px 4px #e30909;
+    box-shadow: 0px 0px 4px #e30909;
+}

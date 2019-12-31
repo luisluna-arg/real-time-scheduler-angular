@@ -1,0 +1,90 @@
+let taskIDs:number[] = _.map(this.tasks, o => o.getId());
+      let unattendendTasks:number[] = taskIDs;
+      let executionCount:any = {};
+      let executionFlags:any = {};
+      let nextStart:any = {};
+      let taskId:number = null;
+      let currentTask:RTTask;
+
+      for (let i = 0; i < this.tasks.length; i++){
+        currentTask = this.tasks[i];
+        taskId = currentTask.getId();
+        executionCount[taskId] = 0;
+        nextStart[taskId] = currentTask.getPeriod();
+        executionFlags[taskId] = [];
+      }
+
+      let currentCell:number = 0;
+      let taskIndex:number = 0;
+      let taskFound:boolean;
+      let indexTask:RTTask;
+
+      while(unattendendTasks.length > 0) { 
+        indexTask = null;
+        currentTask = null;
+        taskFound = false;
+        /* I assume that the tasks are ordered according to their period, and that order is equal to their priority */
+        for (let i = 0; i < this.tasks.length; i++) {
+          indexTask = this.tasks[i];
+          taskId = indexTask.getId();
+
+          if (currentCell == nextStart[taskId]){
+            if (_.contains(unattendendTasks, taskId)){
+              /* TODO: Remember to check if a system can be schedulled before anything */
+              console.error("Scheduling failed: A task has expired\n" + 
+              "Task id: " + taskId + "\n" + 
+              "Current cell: " + currentCell + "\n" + 
+              "Next start: " + nextStart[taskId] + "\n" +
+              "Current scheduling: " + executionFlags.toString()
+              );
+              console.error(executionFlags);
+              throw "Scheduling error";
+            }
+
+            nextStart[taskId] += indexTask.getPeriod();
+            console.log("taskId: " + taskId, "nextStart: " + nextStart[taskId])
+            unattendendTasks.push(taskId);
+          }
+
+
+
+          /* If task is unattended, task found */
+          if (!taskFound && _.contains(unattendendTasks, taskId)) {
+            currentTask = indexTask;
+            taskFound = true;
+            executionFlags[taskId].push(true);
+          }
+          else {
+            executionFlags[taskId].push(false);
+          }
+          
+        }
+
+        /* Couldn't find a valid task, scheduling failed*/
+        if (!taskFound) throw "Scheduling error: Couldn't find a task to execute";
+
+        /* Set to false for next iteration */
+        taskFound = false;
+
+        taskId = currentTask.getId();
+
+        executionCount[taskId] += 1;
+
+        if (executionCount[taskId] == currentTask.getExecutionTime()){
+          unattendendTasks = _.difference(unattendendTasks, [taskId])
+        }
+
+        currentCell += 1;
+      }
+
+      let countToExpire = _.map(this.tasks, function(task) { 
+        let result = {};
+        result[task.getId()] = task.getPeriod();
+        return result;
+      });
+
+      let tasks = _.map(this.tasks, o => o.getId());
+
+      console.log(countToExpire);
+      console.log(unattendendTasks);
+      console.log(executionFlags);

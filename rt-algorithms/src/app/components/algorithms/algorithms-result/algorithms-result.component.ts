@@ -1,21 +1,21 @@
-import { Component, OnInit, Output, EventEmitter, Input } from '@angular/core';
-import { RTSystem } from '../../models/RealTime';
+import { Component, OnInit, Input } from '@angular/core';
+import { RTSystem } from 'src/app/models/RealTime';
 import { _ } from 'underscore';
 
 @Component({
-  selector: 'app-algorithms',
-  templateUrl: './algorithms.component.html',
-  styleUrls: ['./algorithms.component.css']
+  selector: 'app-algorithms-result',
+  templateUrl: './algorithms-result.component.html',
+  styleUrls: [
+    '../shared/algorithms.css',
+    './algorithms-result.component.css'
+  ]
 })
-export class AlgorithmsComponent implements OnInit {
-  
-  private systemText: string;
+export class AlgorithmsResultComponent implements OnInit {
 
   @Input()
   public system: RTSystem;
 
-  constructor() {
-  }
+  constructor() { }
 
   ngOnInit() {
   }

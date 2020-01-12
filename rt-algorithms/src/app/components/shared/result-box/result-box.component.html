@@ -4,8 +4,8 @@
             <input id="{{ boxId + '-input' }}" title="{{ inputTooltip }}" type="text" 
                 class="form-control" value="{{ value }}" 
                 [ngClass]="{ 
-                        'verifies-cota' : isValidForCota != null && isValidForCota,
-                        'fails-cota' : isValidForCota != null && !isValidForCota
+                        'good-result': showResult && isGoodResult,
+                        'bad-result': showResult && !isGoodResult
                 }" 
                 />
         </div>

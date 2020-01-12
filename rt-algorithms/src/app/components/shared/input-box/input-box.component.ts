@@ -17,7 +17,7 @@ export class InputBoxComponent implements OnInit {
 
   constructor() {
     this.system = new EventEmitter<RTSystem>();
-    this.internalSystemText = "(1,2,2),(1,3,3),(1,5,5)";
+    this.internalSystemText = "(1,2,2),(1,3,3),(1,6,6),(1,7,7)";
   }
 
   ngOnInit() {

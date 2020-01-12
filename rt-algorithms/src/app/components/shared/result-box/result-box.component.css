@@ -21,14 +21,3 @@
     width: 150px;
 }
 
-.verifies-cota {
-    -webkit-box-shadow: 0px 0px 4px #21de14;
-    -moz-box-shadow: 0px 0px 4px #21de14;
-    box-shadow: 0px 0px 4px #21de14;
-}
-  
-.fails-cota {
-    -webkit-box-shadow: 0px 0px 4px #e30909;
-    -moz-box-shadow: 0px 0px 4px #e30909;
-    box-shadow: 0px 0px 4px #e30909;
-}

@@ -1,0 +1,20 @@
+.alg-content {
+    display: flex;
+    flex: content;
+    flex-flow: column;
+    flex-wrap: wrap;
+}
+
+.alg-full-size {
+    width: 100%;
+}
+
+.alg-content-row {
+    display: flex;
+    /* flex-flow: row; */
+    flex-wrap: wrap;
+    flex-direction: row;
+    width: 100%;
+    align-content: stretch;
+    margin-bottom: 0.5em;
+}

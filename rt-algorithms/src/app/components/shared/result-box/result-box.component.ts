@@ -4,7 +4,10 @@ import { RTSystem } from 'src/app/models/RealTime';
 @Component({
   selector: 'app-result-box',
   templateUrl: './result-box.component.html',
-  styleUrls: ['./result-box.component.css']
+  styleUrls: [
+    './result-box.component.css',
+    './../../../shared/css/shared-style.css'
+  ]
 })
 export class ResultBoxComponent implements OnInit {
 
@@ -13,10 +16,10 @@ export class ResultBoxComponent implements OnInit {
   @Input() public inputTooltip:string;
   @Input() public system: RTSystem;
   @Input() public label: string;
-  @Input() public isValidForCota:boolean = null;
+  @Input() public showResult:boolean = false;
+  @Input() public isGoodResult:boolean = false;
 
   constructor() { 
-    this.inputTooltip = "TESTING TOOLTIP";    
   }
 
   public setSystem(system: RTSystem){

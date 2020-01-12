@@ -1,4 +1,4 @@
-<div class="sched-chart-container">
+<div class="sched-chart-container" *ngIf="taskIds != null && taskIds.length > 0">
     <div class="sched-chart">
         <div class="sched-chart-row" *ngFor="let taskId of taskIds">
             <div class="sched-chart-cell font-weight-bold">{{ taskId }}</div>

@@ -2,16 +2,19 @@
     <div class="sched-chart">
         <div class="sched-chart-row" *ngFor="let taskId of taskIds">
             <div class="sched-chart-cell font-weight-bold">{{ taskId }}</div>
-            <div class="sched-chart-cell" *ngFor="let isExecute of scheduling.mapping[taskId]" [ngClass]="{
-                'sched-chart-executed': isExecute,
-                'sched-chart-empty': !isExecute
-            }">
+            <div class="sched-chart-cell" 
+                *ngFor="let isExecute of scheduling.getMapping()[taskId]" 
+                [ngClass]="{
+                    'sched-chart-executed': isExecute,
+                    'sched-chart-empty': !isExecute
+                    }">
                 {{ schedule }}
             </div>
         </div>
         <div class="sched-chart-row">
             <div class="sched-chart-cell">&nbsp;</div>
-            <div class="sched-chart-cell font-italic font-weight-light" *ngFor="let taskId of scheduling.order">
+            <div class="sched-chart-cell font-italic font-weight-light" 
+                *ngFor="let taskId of scheduling.getOrder()">
                 <small>{{ taskId }}</small>
             </div>
         </div>

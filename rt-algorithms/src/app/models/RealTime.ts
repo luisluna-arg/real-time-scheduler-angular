@@ -94,25 +94,22 @@ export class RTTask {
   }
 
   public getId(): number {
-    // console.log('RTTask.getId');
     return this.id;
   }
 
   public getExecutionTime(): number {
-    // console.log('RTTask.getExecutionTime');
     return this.executionTime;
   }
+
   public getPeriod(): number {
-    // console.log('RTTask.getPeriod');
     return this.period;
   }
+
   public getExpire(): number {
-    // console.log('RTTask.getExpire');
     return this.expire;
   }
 
   public getFU(): number {
-    // console.log('RTTask.getFU');
     return this.fu;
   }
 
@@ -145,7 +142,6 @@ export class RTSystem {
   }
 
   public getHyperperiod(): number {
-    // console.log('RTSystem.getHyperperiod');
     if (!this.hyperperiod) {
       let periods = _.map(this.tasks, function (o) { return o.period; });
       this.hyperperiod = math.lcm.apply(null, periods);
@@ -154,7 +150,6 @@ export class RTSystem {
   }
 
   public getFU(): number {
-    // console.log('RTSystem.getFU');
     if (!this.fu) {
       this.fu = math.round(
         math.sum(
@@ -167,7 +162,6 @@ export class RTSystem {
   };
 
   public getN(): number {
-    // console.log('RTSystem.getN');
     if (!this.n) {
       this.n = !!this.tasks ? this.tasks.length : 0;
     }
@@ -175,7 +169,6 @@ export class RTSystem {
   };
 
   public getLiu(): number {
-    // console.log('RTSystem.getLiu');
     if (!this.liu) {
       let n = this.getN();
       this.liu = math.round(n * (math.pow(2, 1 / n) as number - 1), 2) as number;
@@ -184,12 +177,10 @@ export class RTSystem {
   };
 
   public isValidForLiu(): boolean {
-    // console.log('RTSystem.isValidForLiu');
     return this.getFU() <= this.getLiu();
   }
 
   public getBini(): number {
-    // console.log('RTSystem.getBini');
     if (!this.bini) {
       this.bini = math.round(math.prod(_.map(this.tasks, function (o) { return o.fu + 1; })) as number, 2) as number;
       return this.bini;
@@ -198,79 +189,49 @@ export class RTSystem {
   };
 
   public isValidForBini(): boolean {
-    // console.log('RTSystem.isValidForBini');
     return this.getBini() <= 2;
   }
 
   public getTaskTiming(): number[] {
-    // console.log('RTSystem.getTaskTiming');
-    if (this.responseTimes.length > 0)
-      return this.responseTimes;
+    let result = [];
 
-    /* When there are no other tasks, reponse time = execution time */
-    this.responseTimes.push(this.tasks[0].getExecutionTime());
+    /* No tasks, empty array as response */
+    if (this.tasks == null || this.tasks == undefined || this.tasks.length == 0)
+      return result;
 
-    if (this.tasks.length == 1) return this.responseTimes;
+    /* First response time, equals to first task */
+    result.push(this.tasks[0].getExecutionTime());
 
-    /* For the others calculate */
-    /*
-    t^(q+1) = Ci + SUM (j=1 -> i-1) Ceil(t^q / Tj).Cj
-    */
-    // console.log("getTaskTiming, tareas restantes: ", this.tasks.length - 1);
-    let iterationCount = 0;
+    let previousTime = null, currentTime = null, seed = null; 
+    let iteration = null, loopTask = null, previousSeed = null;
+    let iterationCount;
     for (var i = 1; i < this.tasks.length; i++) {
-      iterationCount += 1;
-      // console.log("TAREA ACTUAL: ", i);
-      let currentTask = this.tasks[i];
-
-      let latestCalculatedTime = this.responseTimes[i - 1]
-
-      /* Add seed (Previous response time) to partial result */
-      let partialResults = [];
-      partialResults.push(latestCalculatedTime);
-      // console.log("Partial results", partialResults);
-
-      /* There is no previous result yet */
-      let previousResult = null;
-
-      /* Current result is initialized with the latest */
-      let currentResult = latestCalculatedTime;
-
-      /* If both values are different continue 
-       * else a fixed point has been found and the process has to stop  
-       */
-      while (currentResult != previousResult) {
-        // console.log("current result", currentResult, "previous result", previousResult);
-        iterationCount += 1;
-        /* Previous result is updated with the latest calculated up to this point */
-        previousResult = currentResult;
-        /* Current result initialized with the execution time of the current task  */
-        currentResult = currentTask.getExecutionTime();
-
-        /* Iterate over all previous tasks -> SUM (from j=1 to i-1) Ceil(t^q / Tj).Cj */
-        // console.log("iterating over previous tasks");
-        for (let x = 0; x < i; x++) {
-          // // console.log("tarea previa actual: ", x);
-          let loopTask = this.tasks[x];
-          currentResult += math.ceil(previousResult / loopTask.getPeriod()) *
-            loopTask.getExecutionTime()
+      /* Calculate Seed, base value: Last calculated time + current execution time */
+      seed = result[i - 1] + this.tasks[i].getExecutionTime();
+      /* Calculate first iteration */
+      let finish:boolean = false;
+      iterationCount = 0;
+      do
+      {
+        iterationCount += 1
+        iteration = this.tasks[i].getExecutionTime();
+        for (let j = 0; j < i; j++){
+          loopTask = this.tasks[j];
+          /* Ceil(seed / period) * executionTime */
+          iteration += math.ceil(seed / loopTask.getPeriod()) *
+          loopTask.getExecutionTime()
         }
+         finish = seed == iteration;
 
-        partialResults.push(currentResult);
-
-        // console.log("iterating over previous tasks ended");
-      }
-
-      this.responseTimes.push(currentResult);
+         if (!finish) seed = iteration;
+      } while(!finish && iterationCount < 50);
+      result.push(iterationCount < 50 ? iteration : -1);
     }
 
-    // console.log("iterationCount", iterationCount);
-
-    return this.responseTimes;
+    return result;
   }
 
   public getFirstFreeSlot(): number {
-    // console.log('RTSystem.getFirstFreeSlot');
     if (this._firstFreeSlot === null) return this._firstFreeSlot;
 
     /* M >= menor t | t = 1 + j=1 SUM n (techo(t / Tj) * Cj) */

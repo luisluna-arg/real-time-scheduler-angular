@@ -42,7 +42,6 @@ let taskIDs:number[] = _.map(this.tasks, o => o.getId());
             }
 
             nextStart[taskId] += indexTask.getPeriod();
-            console.log("taskId: " + taskId, "nextStart: " + nextStart[taskId])
             unattendendTasks.push(taskId);
           }
 
@@ -84,7 +83,3 @@ let taskIDs:number[] = _.map(this.tasks, o => o.getId());
       });
 
       let tasks = _.map(this.tasks, o => o.getId());
-
-      console.log(countToExpire);
-      console.log(unattendendTasks);
-      console.log(executionFlags);

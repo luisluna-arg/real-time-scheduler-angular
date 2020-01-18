@@ -52,8 +52,13 @@ class AppTools {
   }
 }
 
-
 /* Global classes */
+enum FloorRoofFunctionType {
+  undefined = 0,
+  floor = 1,
+  ceiling = 2,
+}
+
 class RTSchedulingResult {
 
   private _isScheludable:boolean;
@@ -125,6 +130,7 @@ export class RTSystem {
   private bini: number = null;
   private _firstFreeSlot: number;
   private _rmScheduling: any;
+  private _slackStealingcheduling: any;
 
   constructor(systemText: string) {
     this.tasks = AppTools.parseSystemTasks(systemText)
@@ -232,7 +238,7 @@ export class RTSystem {
   }
 
   public getFirstFreeSlot(): number {
-    if (this._firstFreeSlot === null) return this._firstFreeSlot;
+    if (this._firstFreeSlot !== null) return this._firstFreeSlot;
 
     /* M >= menor t | t = 1 + j=1 SUM n (techo(t / Tj) * Cj) */
 
@@ -331,5 +337,80 @@ export class RTSystem {
     this._rmScheduling = new RTSchedulingResult(true, scheduling, executionOrder);
 
     return this._rmScheduling;
+  }
+
+  private getTaskProportion(task:RTTask, nextExpiration:number, functionType:FloorRoofFunctionType) {
+    let mathFunction:any;
+    switch (functionType){
+      case FloorRoofFunctionType.ceiling: 
+        mathFunction = math.ceil;
+        break;
+      case FloorRoofFunctionType.ceiling: 
+        mathFunction = math.floor;
+        break;
+      default:
+        mathFunction = (value:number) => value;
+    }
+
+    return task.getPeriod() > 0 ? mathFunction(nextExpiration / task.getPeriod()) * task.getExecutionTime() : 0;
+
+    return 
+  }
+
+  private getNextExpiration(referenceCell:number, period:number):number {
+    let result = period;
+    while (result < referenceCell) result += period; 
+    return result;
+  }
+
+  private getSlackExpirations(nextExpiration:number, responseCell:number, taskExecutionTime:number):number[] {
+    let lowerLimit:number = nextExpiration - responseCell + taskExecutionTime;
+    let results:number[] = [];
+    let taskNextExpiration:number;
+    for (let i = 0; i < this.tasks.length; i++) {
+      taskNextExpiration = this.getNextExpiration(lowerLimit, this.tasks[i].getPeriod());
+      if (taskNextExpiration >= lowerLimit && taskNextExpiration <= nextExpiration)
+      {
+        results.push(taskNextExpiration);
+      }
+    }
+    return results;
+  }
+
+  private calculateSlackInitial():number[] {
+    const F:number = 0;
+
+    let nextExpiration:number;
+    let partialSum:number;
+    let taskSlacks:number[] = [];
+    let intervalExpirations:number[];
+    let responseTimes:number[] = this.getTaskTiming();
+    for(let i = 0; i < this.tasks.length; i++){
+      debugger;
+      intervalExpirations = this.getSlackExpirations(this.tasks[i].getPeriod(), responseTimes[i], this.tasks[i].getExecutionTime());
+      /* 
+      * TODO la planificacion fallo para S4(0), 
+      * le falto el primer resultado, verificar los limites del intervalo 
+      */
+      console.log("Intervalo para tarea " + i + ": ", intervalExpirations);
+      partialSum = 0;
+      for (let j = 0; j < i; j++) {
+        const task = this.tasks[j];
+        partialSum += this.getTaskProportion(task, nextExpiration, FloorRoofFunctionType.ceiling);
+      }
+      nextExpiration = this.tasks[i].getPeriod();
+      taskSlacks[i] = nextExpiration - F - partialSum;
+    }
+
+    return taskSlacks;
+  }
+
+  public getSlackStealingcheduling() {
+    if (this._slackStealingcheduling != null) {
+      return this._slackStealingcheduling;
+    }
+
+    console.log("slacks", this.calculateSlackInitial());
+
   }
 }

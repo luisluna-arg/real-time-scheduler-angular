@@ -12,8 +12,7 @@ import { _ } from 'underscore';
 })
 export class AlgorithmsResultComponent implements OnInit {
 
-  @Input()
-  public system: RTSystem;
+  @Input() public system: RTSystem;
 
   constructor() { }
 

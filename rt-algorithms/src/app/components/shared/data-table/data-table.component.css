@@ -1,3 +1,4 @@
 .data-table .table {
     table-layout: fixed;
+    line-height: 0.4;
 }

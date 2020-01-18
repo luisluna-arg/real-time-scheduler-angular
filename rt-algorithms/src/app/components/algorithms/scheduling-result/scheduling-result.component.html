@@ -1,0 +1,8 @@
+<div id="system-conditional-content" *ngIf="system !== undefined">
+    <div class="container row">
+        <div class="col-sm">
+            <app-evolution-chart [title]="'RM'" [scheduling]="system.getRMScheduling()" [tasks]="system.getTasks()">
+            </app-evolution-chart>
+        </div>
+    </div>
+</div>

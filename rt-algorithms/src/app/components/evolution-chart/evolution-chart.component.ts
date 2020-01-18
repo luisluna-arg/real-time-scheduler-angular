@@ -9,17 +9,17 @@ import { _ } from 'underscore';
 })
 export class EvolutionChartComponent implements OnInit {
 
-  @Input() public system: RTSystem;
-  private planningReady:string = "Not ready";
+  @Input() public title:string;
+  @Input() public scheduling:any;
+  @Input() public tasks:any[];
   public taskIds:number[];
-  public scheduling:any;
+  public taskPeriods:number[];
 
   constructor() { }
 
   ngOnInit() {
-    this.planningReady = "It is ready to rumble!!!";
-    this.scheduling = this.system.getRMScheduling();
-    this.taskIds = _.map(this.system.getTasks(), item => item.getId());
+    this.taskIds = _.map(this.tasks, item => item.getId());
+    this.taskPeriods = _.map(this.tasks, item => item.getPeriod());
   }
 
 }

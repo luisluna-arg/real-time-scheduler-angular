@@ -18,3 +18,13 @@
     align-content: stretch;
     margin-bottom: 0.5em;
 }
+
+.alg-content-col {
+    display: flex;
+    /* flex-flow: row; */
+    flex-wrap: wrap;
+    flex-direction: column;
+    width: 100%;
+    align-content: stretch;
+    margin-bottom: 0.5em;
+}

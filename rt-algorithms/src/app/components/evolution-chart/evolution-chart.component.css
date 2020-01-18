@@ -1,6 +1,7 @@
 .sched-chart-container {
     display: flex;
     flex-shrink: 1;
+    flex-direction: column;
 }
 
 .sched-chart {
@@ -36,13 +37,13 @@
 }
 
 .sched-chart-cell:last-child {
-    border-right: none;
+    /* border-right: none; */
 }
 
 .sched-chart-executed {
     background-color: greenyellow;
 }
 
-.sched-chart-empty {
-
+.sched-chart-period-end {
+    border-right: 2px solid black ;
 }

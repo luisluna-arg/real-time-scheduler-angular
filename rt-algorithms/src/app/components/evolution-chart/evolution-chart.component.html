@@ -1,20 +1,20 @@
 <div class="sched-chart-container" *ngIf="taskIds != null && taskIds.length > 0">
+    <h5>{{ title }}</h5>
     <div class="sched-chart">
-        <div class="sched-chart-row" *ngFor="let taskId of taskIds">
+        <div class="sched-chart-row" *ngFor="let taskId of taskIds; let taskIndex = index">
             <div class="sched-chart-cell font-weight-bold">{{ taskId }}</div>
-            <div class="sched-chart-cell" 
-                *ngFor="let isExecute of scheduling.getMapping()[taskId]" 
-                [ngClass]="{
+            <div class="sched-chart-cell"
+                *ngFor="let isExecute of scheduling.getMapping()[taskId]; let cellIndex = index" [ngClass]="{
                     'sched-chart-executed': isExecute,
-                    'sched-chart-empty': !isExecute
+                    'sched-chart-empty': !isExecute,
+                    'sched-chart-period-end': (cellIndex + 1) % taskPeriods[taskIndex] == 0
                     }">
-                {{ schedule }}
+
             </div>
         </div>
         <div class="sched-chart-row">
             <div class="sched-chart-cell">&nbsp;</div>
-            <div class="sched-chart-cell font-italic font-weight-light" 
-                *ngFor="let taskId of scheduling.getOrder()">
+            <div class="sched-chart-cell font-italic font-weight-light" *ngFor="let taskId of scheduling.getOrder()">
                 <small>{{ taskId }}</small>
             </div>
         </div>

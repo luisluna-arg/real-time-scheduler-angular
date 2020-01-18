@@ -23,13 +23,18 @@
 
   </div>
 
-  <h5>Tiempos de respuesta</h5>
-  <div class="alg-content-row">
-    <app-data-table class="container" [tableWidth]="'auto'" [headers]="['Tarea', 'Vencimiento']"
-      [rows]="getTaskTiming()"></app-data-table>
+  <div class="container alg-content-row row">
+    <div class="col-sm">
+      <h5>Tiempos de respuesta</h5>
+      <div class="alg-content-row">
+        <app-data-table class="container" [tableWidth]="'auto'" [headers]="['Tarea', 'Vencimiento']"
+          [rows]="getTaskTiming()"></app-data-table>
+      </div>
+    </div>
+    <div class="col-sm"></div>
+    <div class="col-sm"></div>
   </div>
 
-  <h5>Gráfico</h5>
-  <app-evolution-chart [system]="system"></app-evolution-chart>
+  {{ system.getSlackStealingcheduling() }}
 
 </div>

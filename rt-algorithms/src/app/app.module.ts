@@ -25,6 +25,7 @@ import { HomeComponent } from './components/home/home.component';
 import { EvolutionChartComponent } from './components/evolution-chart/evolution-chart.component';
 import { AlgorithmsMainComponent } from './components/algorithms/algorithms-main/algorithms-main.component';
 import { AlgorithmsResultComponent } from './components/algorithms/algorithms-result/algorithms-result.component';
+import { SchedulingResultComponent } from './components/algorithms/scheduling-result/scheduling-result.component';
 
 @NgModule({
   declarations: [
@@ -38,6 +39,7 @@ import { AlgorithmsResultComponent } from './components/algorithms/algorithms-re
     DataTableComponent,
     EvolutionChartComponent,
     AlgorithmsResultComponent,
+    SchedulingResultComponent,
   ],
   imports: [
     BrowserModule,

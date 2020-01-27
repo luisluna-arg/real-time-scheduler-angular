@@ -61,11 +61,11 @@ enum FloorRoofFunctionType {
 
 class RTSchedulingResult {
 
-  private _isScheludable:boolean;
-  private _mapping:any;
-  private _order:any;
+  private _isScheludable: boolean;
+  private _mapping: any;
+  private _order: any;
 
-  constructor(_isScheludable:boolean = false, mapping:any = null, order:any = null) {
+  constructor(_isScheludable: boolean = false, mapping: any = null, order: any = null) {
     this._isScheludable = _isScheludable;
     this._mapping = mapping;
     this._order = order;
@@ -73,9 +73,9 @@ class RTSchedulingResult {
 
   public isScheludable() { return this._isScheludable; }
 
-  public getMapping() { return this._mapping; }
+  public getMapping() { return this._mapping != null ? this._mapping : []; }
 
-  public getOrder() { return this._order; }
+  public getOrder() { return this._order != null ? this._order : []; }
 }
 
 export class RTTask {
@@ -198,8 +198,36 @@ export class RTSystem {
     return this.getBini() <= 2;
   }
 
+  private getTaskResponse(task:RTTask, previousTaskTime:number, iterationIndex:number) {
+    /* Calculate Seed, base value: Last calculated time + current execution time */
+    let seed:number = previousTaskTime + task.getExecutionTime();
+    /* Calculate first iteration */
+    let finish:boolean = false;
+    let iterationCount:number = 0;
+    let iteration:number;
+    let loopTask:RTTask;
+    let taskIndex = iterationIndex % this.tasks.length;
+    // if (iterationIndex == 4){
+    //   debugger;
+    // }
+    do {
+      iterationCount += 1
+      iteration = task.getExecutionTime();
+      for (let j = 0; j < taskIndex; j++) {
+        loopTask = this.tasks[j];
+        /* Ceil(seed / period) * executionTime */
+        iteration += math.ceil(seed / loopTask.getPeriod()) *
+          loopTask.getExecutionTime()
+      }
+      finish = seed == iteration;
+
+      if (!finish) seed = iteration;
+    } while (!finish && iterationCount < 50);
+    return iterationCount < 50 ? iteration : -1;
+  }
+
   public getTaskTiming(): number[] {
-    let result = [];
+    let result:number[] = [];
 
     /* No tasks, empty array as response */
     if (this.tasks == null || this.tasks == undefined || this.tasks.length == 0)
@@ -208,30 +236,11 @@ export class RTSystem {
     /* First response time, equals to first task */
     result.push(this.tasks[0].getExecutionTime());
 
-    let previousTime = null, currentTime = null, seed = null; 
-    let iteration = null, loopTask = null, previousSeed = null;
-    let iterationCount;
-    for (var i = 1; i < this.tasks.length; i++) {
-      /* Calculate Seed, base value: Last calculated time + current execution time */
-      seed = result[i - 1] + this.tasks[i].getExecutionTime();
-      /* Calculate first iteration */
-      let finish:boolean = false;
-      iterationCount = 0;
-      do
-      {
-        iterationCount += 1
-        iteration = this.tasks[i].getExecutionTime();
-        for (let j = 0; j < i; j++){
-          loopTask = this.tasks[j];
-          /* Ceil(seed / period) * executionTime */
-          iteration += math.ceil(seed / loopTask.getPeriod()) *
-          loopTask.getExecutionTime()
-        }
-         finish = seed == iteration;
-
-         if (!finish) seed = iteration;
-      } while(!finish && iterationCount < 50);
-      result.push(iterationCount < 50 ? iteration : -1);
+    let taskIndex = 1;
+    let previousResult = result[0];
+    for (let t = taskIndex; t < this.tasks.length; t++) {
+      previousResult = this.getTaskResponse(this.tasks[t], previousResult, t)
+      result.push(previousResult);
     }
 
     return result;
@@ -274,7 +283,7 @@ export class RTSystem {
       return this._rmScheduling;
     }
 
-    if (this.getFU() > this.getLiu()) return new RTSchedulingResult();
+    // if (this.getFU() <= this.getLiu()) return new RTSchedulingResult();
 
     let unattendendTasks: number[] = _.map(this.tasks, o => o.getId());
     let executionCount: any = {}, nextStart: any = {}, scheduling: any = {};
@@ -339,68 +348,94 @@ export class RTSystem {
     return this._rmScheduling;
   }
 
-  private getTaskProportion(task:RTTask, nextExpiration:number, functionType:FloorRoofFunctionType) {
-    let mathFunction:any;
-    switch (functionType){
-      case FloorRoofFunctionType.ceiling: 
+  private getTaskProportion(task: RTTask, nextExpiration: number, functionType: FloorRoofFunctionType) {
+    let mathFunction: any;
+    switch (functionType) {
+      case FloorRoofFunctionType.ceiling:
         mathFunction = math.ceil;
         break;
-      case FloorRoofFunctionType.ceiling: 
+      case FloorRoofFunctionType.ceiling:
         mathFunction = math.floor;
         break;
       default:
-        mathFunction = (value:number) => value;
+        mathFunction = (value: number) => value;
     }
 
-    return task.getPeriod() > 0 ? mathFunction(nextExpiration / task.getPeriod()) * task.getExecutionTime() : 0;
+    // console.log(
+    //   "ID", task.getId() + 1, "Period", task.getPeriod(), 
+    //   "nextExpiration", nextExpiration, 
+    //   "executionTime", task.getExecutionTime()
+    //   );
 
-    return 
+    return task.getPeriod() > 0 ?
+      mathFunction(nextExpiration / task.getPeriod()) * task.getExecutionTime() :
+      0;
   }
 
-  private getNextExpiration(referenceCell:number, period:number):number {
+  private getNextExpiration(referenceCell: number, period: number): number {
     let result = period;
-    while (result < referenceCell) result += period; 
+    while (result < referenceCell) result += period;
     return result;
   }
 
-  private getSlackExpirations(nextExpiration:number, responseCell:number, taskExecutionTime:number):number[] {
-    let lowerLimit:number = nextExpiration - responseCell + taskExecutionTime;
-    let results:number[] = [];
-    let taskNextExpiration:number;
+  private getSlackExpirations(nextExpiration: number, responseCell: number, taskExecutionTime: number): number[] {
+    let lowerLimit: number = nextExpiration - responseCell + taskExecutionTime;
+    let results: number[] = [];
+    let taskNextExpiration: number;
+
     for (let i = 0; i < this.tasks.length; i++) {
       taskNextExpiration = this.getNextExpiration(lowerLimit, this.tasks[i].getPeriod());
-      if (taskNextExpiration >= lowerLimit && taskNextExpiration <= nextExpiration)
-      {
+      if (taskNextExpiration >= lowerLimit && taskNextExpiration <= nextExpiration) {
         results.push(taskNextExpiration);
       }
     }
+
     return results;
   }
 
-  private calculateSlackInitial():number[] {
-    const F:number = 0;
+  private calculateF(task:RTTask) {
+    return 0;
+  }
 
-    let nextExpiration:number;
-    let partialSum:number;
-    let taskSlacks:number[] = [];
-    let intervalExpirations:number[];
-    let responseTimes:number[] = this.getTaskTiming();
-    for(let i = 0; i < this.tasks.length; i++){
-      debugger;
-      intervalExpirations = this.getSlackExpirations(this.tasks[i].getPeriod(), responseTimes[i], this.tasks[i].getExecutionTime());
-      /* 
-      * TODO la planificacion fallo para S4(0), 
-      * le falto el primer resultado, verificar los limites del intervalo 
-      */
-      console.log("Intervalo para tarea " + i + ": ", intervalExpirations);
+  private calculateTaskSlack(task: RTTask, responseTime: number, taskIndex: number): number {
+    let partialSum = 0;
+    let F = responseTime <= task.getPeriod() ? 0 : this.calculateF(task);
+    let intervalExpirations = this.getSlackExpirations(task.getPeriod(), responseTime, task.getExecutionTime());
+
+    let nextExpiration = task.getPeriod();
+
+    let partialSlacks: number[] = [];
+    let intervalExpiration: number;
+    let expirationValue: number;
+    let partialCalculation: number[] = [];
+    for (let j = 0; j < intervalExpirations.length; j++) {
+      intervalExpiration = intervalExpirations[j];
+      partialCalculation = [];
       partialSum = 0;
-      for (let j = 0; j < i; j++) {
-        const task = this.tasks[j];
-        partialSum += this.getTaskProportion(task, nextExpiration, FloorRoofFunctionType.ceiling);
+      for (let k = 0; k <= taskIndex; k++) {
+        const task = this.tasks[k];
+        expirationValue = this.getTaskProportion(task, intervalExpiration, FloorRoofFunctionType.ceiling);
+        partialSum += expirationValue;
+        partialCalculation.push(expirationValue);
       }
-      nextExpiration = this.tasks[i].getPeriod();
-      taskSlacks[i] = nextExpiration - F - partialSum;
+
+      partialSlacks.push(nextExpiration - F - partialSum);
     }
+
+    let slack = math.min(partialSlacks);
+    if (slack == -1) slack = 0;
+    return slack
+  }
+
+  private calculateSlackInitial(): number[] {
+    const F: number = 0;
+
+    let taskSlacks: number[] = [], responseTimes: number[] = this.getTaskTiming();
+    for (let i = 0; i < this.tasks.length; i++) {
+      taskSlacks[i] = this.calculateTaskSlack(this.tasks[i], i, responseTimes[i]);
+    }
+
+    console.log("taskSlacks", taskSlacks);
 
     return taskSlacks;
   }
@@ -410,7 +445,31 @@ export class RTSystem {
       return this._slackStealingcheduling;
     }
 
-    console.log("slacks", this.calculateSlackInitial());
+    let currentTask:RTTask;
+    let counters = _.map(this.tasks, []);
+    let executions = _.map(this.tasks, o => o.getExecutionTime());
+    let previousTaskTime:number = 0, taskResponse:number, taskIndex:number, currentSlack:number;
+    let remainingTime:number;
+    for (let i = 0; i < 8; i++){
+      taskIndex = i % this.tasks.length;
+      currentTask = this.tasks[taskIndex];
+      
+      remainingTime = i % currentTask.getPeriod();
+      
+      if (remainingTime <= 0) executions[taskIndex] = currentTask.getExecutionTime();
 
+      
+      debugger;
+      taskResponse = this.getTaskResponse(currentTask, previousTaskTime, i);
+      currentSlack = this.calculateTaskSlack(currentTask, taskResponse, i);
+      console.log("Respuesta", taskResponse, "Slack", currentSlack);
+      counters[taskIndex].push(currentSlack);
+      previousTaskTime = taskResponse;
+    }
+
+    console.log(counters);
+
+    debugger;
+    // this.calculateSlackInitial();
   }
 }

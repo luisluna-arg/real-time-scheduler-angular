@@ -9,13 +9,14 @@ import { _ } from 'underscore';
 })
 export class EvolutionChartComponent implements OnInit {
 
-  @Input() public title:string;
-  @Input() public scheduling:any;
-  @Input() public tasks:any[];
-  public taskIds:number[];
-  public taskPeriods:number[];
+  @Input() public title: string;
+  @Input() public scheduling: any;
+  @Input() public tasks: any[];
+  public taskIds: number[];
+  public taskPeriods: number[];
 
-  constructor() { }
+  constructor() {
+  }
 
   ngOnInit() {
     this.taskIds = _.map(this.tasks, item => item.getId());
